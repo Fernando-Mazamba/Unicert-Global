@@ -694,7 +694,7 @@ function ph(title,sub,crumbs,badge){
 }
 function tick(a){return '<ul class="tick">'+a.map(function(x){return '<li>'+esc(x)+'</li>'}).join('')+'</ul>'}
 function normOpts(sel){return NORMAS.map(function(n){var v=n.s+' – '+n.name;return '<option'+(sel===n.id?' selected':'')+'>'+esc(v)+'</option>'}).join('')+'<option>Otra / no sé cuál necesito</option>'}
-var UG_CFG={GOOGLE_SCRIPT_URL:''}; /* <-- PEGAR AQUÍ la URL /exec del Apps Script (docs/apps-script.gs) */
+var UG_CFG={GOOGLE_SCRIPT_URL:'https://script.google.com/macros/s/AKfycbwNdd88o3RAlN-0nDS1Ew-uPOUEUyohjfwgvt6sZDJPJ3mv4yUMiirf0XcypjDYE4ad/exec'}; /* <-- PEGAR AQUÍ la URL /exec del Apps Script (docs/apps-script.gs) */
 function normChecks(sel){return '<div class="chkgrid">'+NORMAS.map(function(n){return '<label class="chk"><input type="checkbox" name="p_normas" value="'+esc(n.s+' – '+n.name)+'"'+(sel===n.id?' checked':'')+'><span>'+esc(n.s)+' <small>'+esc(n.name)+'</small></span></label>'}).join('')+'<label class="chk"><input type="checkbox" name="p_normas" value="Otra / no sé cuál necesito"><span>Otra / no sé cuál necesito</span></label></div>'}
 function formProp(sel,compact){
  return '<form id="fProp" novalidate data-compact="'+(compact?1:0)+'">'+
