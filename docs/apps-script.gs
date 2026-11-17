@@ -35,6 +35,10 @@ function tab_(name, cols) {
   if (w > 0) sh.getRange(1, w, sh.getMaxRows(), 1).setNumberFormat('@');
   return sh;
 }
+function fila_(sh, vals) {
+  var r = sh.getLastRow() + 1;
+  sh.getRange(r, 1, 1, vals.length).setNumberFormat('@').setValues([vals.map(String)]);
+}
 function carpeta_() {
   var it = DriveApp.getFoldersByName(CARPETA);
   return it.hasNext() ? it.next() : DriveApp.createFolder(CARPETA);
@@ -46,7 +50,7 @@ function doPost(e) {
     var d = JSON.parse(e.postData.contents);
     if (d.referencia) return propuesta_(d);
     var sh = tab_('Landing', COLS_LANDING);
-    sh.appendRow(COLS_LANDING.map(function (c) { return d[c] || ''; }));
+    fila_(sh, COLS_LANDING.map(function (c) { return d[c] || ''; }));
     MailApp.sendEmail({ to: AVISO_A, subject: 'Nuevo lead (landing) – ' + (d.empresa || ''),
       htmlBody: '<p><b>' + esc_(d.nombreCompleto) + '</b> – ' + esc_(d.empresa) + ' (' + esc_(d.pais) + ')</p><p>WhatsApp: ' + esc_(d.whatsapp) + '<br>Correo: ' + esc_(d.email) + '<br>Norma: ' + esc_(d.normaISO) + '<br>Empleados: ' + esc_(d.numEmpleados) + '<br>Motivo: ' + esc_(d.motivo) + '<br>Comentario: ' + esc_(d.comentario) + '</p>' });
     return ContentService.createTextOutput('ok');
@@ -61,7 +65,7 @@ function propuesta_(d) {
     links.push(f.getUrl());
   });
   d.adjuntos = links.join('\n');
-  tab_('Propuestas', COLS_PROP).appendRow(COLS_PROP.map(function (c) { return d[c] || ''; }));
+  fila_(tab_('Propuestas', COLS_PROP), COLS_PROP.map(function (c) { return d[c] || ''; }));
   var cuerpo = '<p>Referencia: <b>' + esc_(d.referencia) + '</b></p><p><b>' + esc_(d.nombre) + '</b> – ' + esc_(d.empresa) + '<br>' + esc_(d.pais) + ' ' + esc_(d.ciudad) + '<br>Correo: ' + esc_(d.email) + '<br>WhatsApp: ' + esc_(d.whatsapp) + '<br>Normas: ' + esc_(d.normas) + '<br>Trabajadores: ' + esc_(d.trabajadores) + '<br>Actividad: ' + esc_(d.actividad) + '<br>Mensaje: ' + esc_(d.mensaje) + '</p>' + (links.length ? '<p>Adjuntos:<br>' + links.join('<br>') + '</p>' : '');
   MailApp.sendEmail({ to: AVISO_A, replyTo: d.email, subject: 'Solicitud de propuesta ' + d.referencia + ' – ' + d.empresa, htmlBody: cuerpo });
   if (d.email) {
