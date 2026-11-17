@@ -31,6 +31,8 @@ function tab_(name, cols) {
   var ss = SpreadsheetApp.openById(name === 'Landing' ? ID_LANDING : ID_SITIO);
   var sh = ss.getSheets()[0];
   if (sh.getLastRow() === 0) { sh.appendRow(cols); sh.setFrozenRows(1); }
+  var w = cols.indexOf('whatsapp') + 1;
+  if (w > 0) sh.getRange(1, w, sh.getMaxRows(), 1).setNumberFormat('@');
   return sh;
 }
 function carpeta_() {
