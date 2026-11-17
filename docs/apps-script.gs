@@ -3,7 +3,7 @@
  * Sirve a la LANDING (certification.unicertglobal.org) y al SITIO (www.unicertglobal.org).
  *
  * Qué hace:
- *  - Guarda cada solicitud en la hoja "Unicert - Leads" (pestañas "Landing" y "Propuestas").
+ *  - Guarda cada solicitud en dos planillas de Drive (carpeta "dir-cert"): una para la landing y otra para el sitio.
  *  - Envía un aviso a info@unicertglobal.org (con enlaces a los adjuntos).
  *  - Envía confirmación al cliente con su número de referencia (formulario del sitio).
  *  - Guarda los adjuntos en la carpeta de Drive "Unicert - Adjuntos".
@@ -23,16 +23,14 @@ var CARPETA = 'Unicert - Adjuntos';
 var COLS_LANDING = ['timestamp','nombreCompleto','empresa','pais','whatsapp','email','normaISO','numEmpleados','motivo','urgencia','comentario'];
 var COLS_PROP = ['referencia','fecha','nombre','empresa','pais','ciudad','email','whatsapp','normas','actividad','trabajadores','mensaje','adjuntos','origen'];
 
-function ss_() {
-  var p = PropertiesService.getScriptProperties(), id = p.getProperty('SHEET_ID');
-  if (id) return SpreadsheetApp.openById(id);
-  var ss = SpreadsheetApp.create(NOMBRE_HOJA);
-  p.setProperty('SHEET_ID', ss.getId());
-  return ss;
-}
+// Planillas ya creadas en Drive (carpeta "dir-cert")
+var ID_LANDING = '1dfhnZenKAES1YKR3ZnMQ_OZkttK-S4g1MuRrcAjoncE'; // Unicert - Leads Landing
+var ID_SITIO   = '1tz78wvL3dyt9JL6EiUyYGWe9CYgXg7Mki8aBb8ix9Oc'; // Unicert - Propuestas Website
+
 function tab_(name, cols) {
-  var ss = ss_(), sh = ss.getSheetByName(name);
-  if (!sh) { sh = ss.insertSheet(name); sh.appendRow(cols); sh.setFrozenRows(1); }
+  var ss = SpreadsheetApp.openById(name === 'Landing' ? ID_LANDING : ID_SITIO);
+  var sh = ss.getSheets()[0];
+  if (sh.getLastRow() === 0) { sh.appendRow(cols); sh.setFrozenRows(1); }
   return sh;
 }
 function carpeta_() {
@@ -74,4 +72,4 @@ function propuesta_(d) {
 
 function doGet() { return ContentService.createTextOutput('Unicert formularios OK'); }
 /** Ejecutar una vez a mano para autorizar permisos y crear la hoja. */
-function autorizar() { tab_('Propuestas', COLS_PROP); tab_('Landing', COLS_LANDING); carpeta_(); Logger.log(ss_().getUrl()); }
+function autorizar() { tab_('Propuestas', COLS_PROP); tab_('Landing', COLS_LANDING); carpeta_(); Logger.log('OK'); }
