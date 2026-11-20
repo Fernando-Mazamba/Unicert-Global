@@ -106,15 +106,15 @@ function doGet(e) {
   try {
     var tipo = p.type === 'curso' ? 'curso' : 'iso';
     if (p.action === 'list') {
-      res = {ok: true, type: tipo, rows: tipo === 'iso' ? cert_('iso') : []};
+      res = {ok: true, type: tipo, rows: []}; // la lista completa ya no se publica
     } else if (p.action === 'verify') {
       var q = norm_(p.q), rows = [];
       if (q.length >= (tipo === 'curso' ? 6 : 3)) {
         var all = cert_(tipo);
         rows = all.filter(function (r) { return norm_(r.num) === q; });
         if (!rows.length && tipo === 'iso') {
-          var t = String(p.q || '').trim().toUpperCase();
-          rows = all.filter(function (r) { return norm_(r.num).indexOf(q) > -1 || r.empresa.toUpperCase().indexOf(t) > -1; });
+          var t = String(p.q || '').trim().replace(/\s+/g, ' ').toUpperCase();
+          rows = all.filter(function (r) { return String(r.empresa).trim().replace(/\s+/g, ' ').toUpperCase() === t; });
         }
       }
       res = {ok: true, type: tipo, rows: rows.slice(0, 20)};
