@@ -268,6 +268,7 @@ h2[id]{scroll-margin-top:90px}
 .photoband{padding:0}.photoband .wrap{padding-top:36px;padding-bottom:36px}.pfig{position:relative;margin:0;border-radius:20px;overflow:hidden;box-shadow:0 18px 40px rgba(9,26,51,.22);line-height:0}.pfig img{width:100%;height:auto;display:block}.pfig figcaption{position:absolute;left:0;right:0;bottom:0;padding:34px 26px 20px;line-height:1.35;color:#fff;background:linear-gradient(0deg,rgba(9,26,51,.88),rgba(9,26,51,0))}.pfig figcaption b{display:block;font-size:1.15rem}.pfig figcaption span{opacity:.88;font-size:.95rem}
 .nlogos{display:flex;justify-content:center;gap:clamp(14px,4vw,44px);flex-wrap:wrap;margin:6px 0 30px}.nlogos svg{width:clamp(110px,22vw,170px);height:auto;display:block}
 @media(max-width:700px){.pfig figcaption{padding:22px 14px 12px}.pfig figcaption b{font-size:1rem}.pfig figcaption span{font-size:.85rem}}
+.pimg.pf{display:block!important}@media(max-width:900px){.pimg.pf{margin-top:20px}}
 </style>
 </head>
 <body>
@@ -698,7 +699,7 @@ function normLogos(){return '<div class="nlogos" role="group" aria-label="Normas
 function ph(title,sub,crumbs,badge){
   var c='<a href="#inicio">Inicio</a>';
   (crumbs||[]).forEach(function(x){c+=' / '+(x[1]?'<a href="#'+x[1]+'">'+esc(x[0])+'</a>':esc(x[0]))});
-  return '<section class="phero"><div class="wrap pgrid"><div><div class="crumb">'+c+'</div>'+(badge?'<span class="badge">'+esc(badge)+'</span>':'')+'<h1>'+esc(title)+'</h1><p>'+esc(sub)+'</p></div><div class="pimg">'+pimgHtml(title,sub,badge)+'</div></div></section>';
+  return '<section class="phero"><div class="wrap pgrid"><div><div class="crumb">'+c+'</div>'+(badge?'<span class="badge">'+esc(badge)+'</span>':'')+'<h1>'+esc(title)+'</h1><p>'+esc(sub)+'</p></div><div class="pimg'+(PHOTO[window.__pid]?' pf':'')+'">'+pimgHtml(title,sub,badge)+'</div></div></section>';
 }
 function tick(a){return '<ul class="tick">'+a.map(function(x){return '<li>'+esc(x)+'</li>'}).join('')+'</ul>'}
 function normOpts(sel){return NORMAS.map(function(n){var v=n.s+' – '+n.name;return '<option'+(sel===n.id?' selected':'')+'>'+esc(v)+'</option>'}).join('')+'<option>Otra / no sé cuál necesito</option>'}
