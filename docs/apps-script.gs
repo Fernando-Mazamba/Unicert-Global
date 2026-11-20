@@ -76,6 +76,53 @@ function propuesta_(d) {
   return ContentService.createTextOutput('ok');
 }
 
-function doGet() { return ContentService.createTextOutput('Unicert formularios OK'); }
+var ID_CERTS = '1LloFdJY--VTTjthoa-qIa9rsCifB_mSNqehhI40NGrw'; // Unicert Global - Base de datos de certificados
+var HOJAS_CERT = {iso: 'Certificados ISO', curso: 'Cursos'};
+var CAMPOS_ISO = {num:0, empresa:1, pais:2, norma:3, alcance:4, iaf:5, emision:6, vence:7, seguimiento:8, estado:9, emisor:10};
+var CAMPOS_CURSO = {num:0, participante:1, curso:2, norma:3, horas:4, modalidad:5, inicio:6, fin:7, emision:8, resultado:9, estado:10, instructor:11, organizacion:12, pais:13};
+
+function val_(v) { return v instanceof Date ? Utilities.formatDate(v, 'America/Asuncion', 'dd/MM/yyyy') : String(v == null ? '' : v).trim(); }
+function norm_(s) { return String(s || '').replace(/\s+/g, '').toUpperCase(); }
+
+/** Lee la hoja de certificados (cache 60 s). Solo devuelve campos publicos. */
+function cert_(tipo) {
+  var cache = CacheService.getScriptCache(), key = 'cert_' + tipo, hit = cache.get(key);
+  if (hit) return JSON.parse(hit);
+  var campos = tipo === 'iso' ? CAMPOS_ISO : CAMPOS_CURSO;
+  var v = SpreadsheetApp.openById(ID_CERTS).getSheetByName(HOJAS_CERT[tipo]).getDataRange().getValues(), out = [];
+  for (var i = 1; i < v.length; i++) {
+    if (!val_(v[i][0])) continue;
+    var o = {};
+    Object.keys(campos).forEach(function (k) { o[k] = val_(v[i][campos[k]]); });
+    out.push(o);
+  }
+  try { cache.put(key, JSON.stringify(out), 60); } catch (x) {}
+  return out;
+}
+
+/** Verificador publico: ?action=verify&type=iso|curso&q=NUMERO  |  ?action=list&type=iso */
+function doGet(e) {
+  var p = (e && e.parameter) || {}, res;
+  try {
+    var tipo = p.type === 'curso' ? 'curso' : 'iso';
+    if (p.action === 'list') {
+      res = {ok: true, type: tipo, rows: tipo === 'iso' ? cert_('iso') : []};
+    } else if (p.action === 'verify') {
+      var q = norm_(p.q), rows = [];
+      if (q.length >= (tipo === 'curso' ? 6 : 3)) {
+        var all = cert_(tipo);
+        rows = all.filter(function (r) { return norm_(r.num) === q; });
+        if (!rows.length && tipo === 'iso') {
+          var t = String(p.q || '').trim().toUpperCase();
+          rows = all.filter(function (r) { return norm_(r.num).indexOf(q) > -1 || r.empresa.toUpperCase().indexOf(t) > -1; });
+        }
+      }
+      res = {ok: true, type: tipo, rows: rows.slice(0, 20)};
+    } else {
+      return ContentService.createTextOutput('Unicert formularios OK');
+    }
+  } catch (err) { res = {ok: false, error: 'error'}; }
+  return ContentService.createTextOutput(JSON.stringify(res)).setMimeType(ContentService.MimeType.JSON);
+}
 /** Ejecutar una vez a mano para autorizar permisos y crear la hoja. */
-function autorizar() { tab_('Propuestas', COLS_PROP); tab_('Landing', COLS_LANDING); carpeta_(); Logger.log('OK'); }
+function autorizar() { tab_('Propuestas', COLS_PROP); tab_('Landing', COLS_LANDING); carpeta_(); cert_('iso'); cert_('curso'); Logger.log('OK'); }
